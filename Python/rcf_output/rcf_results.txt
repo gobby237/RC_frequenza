@@ -1,0 +1,60 @@
+===========================================================================
+RC FILTER - CHI-SQUARE MINIMIZATION ANALYSIS
+===========================================================================
+
+Analysis date: 2026-04-19 18:20:56
+Configuration:
+  R_meas = 3.871e+03 Ω
+  C_meas = 9.360e-09 F
+  Scan range: ±10% around theory
+  Number of scan points: 50
+
+===========================================================================
+METHOD 1: χ² MINIMIZATION ON AMPLITUDE
+===========================================================================
+χ² at minimum: 143.08
+Degrees of freedom: 65
+Reduced χ² (χ²/dof): 2.20
+
+RESULT:
+  f_t = 4.570920 ± 0.018516 kHz
+  Relative error: 0.41%
+  Difference from theory: 4.06%
+
+===========================================================================
+METHOD 2: χ² MINIMIZATION ON PHASE
+===========================================================================
+χ² at minimum: 243.03
+Degrees of freedom: 65
+Reduced χ² (χ²/dof): 3.74
+
+RESULT:
+  f_t = 4.637283 ± 0.023352 kHz
+  Relative error: 0.50%
+  Difference from theory: 5.57%
+
+===========================================================================
+THEORETICAL VALUE (from R and C)
+===========================================================================
+f_t (theory) = 4.392594 ± 0.547014 kHz
+
+===========================================================================
+ERROR CALCULATION DETAILS
+===========================================================================
+
+AMPLITUDE ERROR (eA):
+  Formula: eA = A * sqrt((eV/V_in)² + (eV/V_out)²)
+  where eV = V_scale * 0.04 (oscilloscope uncertainty)
+  This assumes uncertainty on both V_in and V_out is the same
+
+PHASE ERROR (ephi_norm):
+  eDT = 0.04 * DT_scale * sqrt(2)  [µs]
+  ephi_deg = phi_deg * eDT / DT  [degrees]
+  ephi_norm = ephi_deg / 90  [normalized]
+  Factor sqrt(2) is conservative (phase + amplitude uncertainty)
+
+CHI-SQUARE FITTING:
+  χ²(f_t) = Σ((y_meas - y_theory) / ey)²
+  Parabola: χ²(f_t) = a*f_t² + b*f_t + c
+  Best fit: f_t = -b/(2a)
+  Uncertainty: where χ² = χ²_min + 1
