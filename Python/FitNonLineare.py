@@ -8,7 +8,7 @@ Saves all plots to PNG and TXT files
 
 import numpy as np
 import matplotlib
-matplotlib.use('Agg')  # backend non-interattivo: niente GUI, solo salvataggio file
+# matplotlib.use('Agg')  # backend non-interattivo: niente GUI, solo salvataggio file
 import matplotlib.pyplot as plt
 import os
 from datetime import datetime
@@ -384,6 +384,7 @@ def plot_and_save(data, config, m_amp, m_phase, ft_exp, eft_exp, output_dir=".")
     plt.tight_layout()
     path1 = os.path.join(output_dir, "rcf_01_risposta.png")
     fig1.savefig(path1, dpi=150, bbox_inches='tight')
+    plt.show()                     # <--- MOSTRA LA FIGURA
     plt.close(fig1)
     print(f"\u2713 Salvato: {path1}")
 
@@ -432,6 +433,7 @@ def plot_and_save(data, config, m_amp, m_phase, ft_exp, eft_exp, output_dir=".")
         plt.tight_layout()
         path = os.path.join(output_dir, filename)
         fig.savefig(path, dpi=150, bbox_inches='tight')
+        plt.show()                 # <--- MOSTRA LA FIGURA
         plt.close(fig)
         print(f"\u2713 Salvato: {path}")
 
