@@ -87,11 +87,11 @@ phi_fs = 2*np.pi*f*np.array(data[5])*1e-6/(np.pi/2.)
 N = len(f)
 
 # Calculate errors on y
-Vin_errL = V_fs[0]/10*0.41
+Vin_errL = 1/10*0.41
 V_errL = V_fs/10*0.41
 phi_errL = phi_fs/10*0.41*np.sqrt(2)
 A_err = A*np.sqrt((V_errL/Vout)**2+(Vin_errL/Vin)**2 + 2*(0.03*0.41)**2)
-A_err[(f>10) & (f<16600)] = A[(f>10) & (f<16600)]*np.sqrt((V_errL[(f>10) & (f<16600)]/Vout[(f>10) & (f<16600)])**2+(Vin_errL/Vin[(f>10) & (f<16600)])**2)
+A_err[(f>10) & (f<10600)] = A[(f>10) & (f<10600)]*np.sqrt((V_errL[(f>10) & (f<10600)]/Vout[(f>10) & (f<10600)])**2+(Vin_errL/Vin[(f>10) & (f<10600)])**2)
 #A_err = []
 #for i in range(len(V_errL)):
 #    if V_errL[i] == Vin_errL :
@@ -107,7 +107,7 @@ print(Vin_errL,V_errL, A_err)
 # Fit lineare locale
 #---------------------------
 
-scan = 2200. # +/- intervallo linearita' di rispetto ft_init
+scan = 1650. # +/- intervallo linearita' di rispetto ft_init
 f_min = ft_init-scan
 f_max = ft_init+scan
 print(f_min,f_max)
@@ -225,7 +225,7 @@ plt.show()
 
 ft = ft_phi
 
-scan = 5000. # +/- intervallo linearita' di rispetto ft_init
+scan = 14000. # +/- intervallo linearita' di rispetto ft_init
 f_min = (ft+scan)
 f_max = (ft+55*scan)
 print(ft,f_min,f_max)
@@ -340,7 +340,7 @@ y_err_A = A_err
 scan = 2200 # +/- intervallo preso con stessa sonda Vout e Vin
 f_min = ft_init-scan
 f_max = ft_init+scan
-y_err_A[(f>f_min) & (f<f_max)] = A_err[(f>f_min) & (f<f_max)]
+# y_err_A[(f>f_min) & (f<f_max)] = A_err[(f>f_min) & (f<f_max)]
 z_err_phi = phi_errL
 
 N = len(x)
@@ -363,7 +363,7 @@ perr_nl_A = np.sqrt(np.diag(pcov_nl_A))
 chisq_nl_A = np.sum((residu_nl_A/y_err_A)**2)
 perr_nl_phi = np.sqrt(np.diag(pcov_nl_phi))
 chisq_nl_phi = np.sum((residu_nl_phi/z_err_phi)**2)
-df = N - 2
+df = N - 1
 
 # frequenza di taglio
 ft_nl_A = popt_nl_A[0]
@@ -391,7 +391,7 @@ print(r' frequenza di taglio = {e:.0f} +/- {d:.0f} Hz'.format(e=ft_nl_phi, d=err
 print("=============================================================\n")
 
 # fit tracciato con mille punti fra la freq min e max
-x_fit = np.linspace(np.min(x), np.max(x), 1000)
+x_fit = np.logspace(np.log10(np.min(x)), np.log10(np.max(x)), 2000)
 
 """
 # Plot data, fit and residuals
@@ -481,7 +481,7 @@ perr_lin_A = np.sqrt(np.diag(pcov_lin_A))
 chisq_lin_A = np.sum((residu_lin_A/y_err_A2)**2)
 perr_lin_phi = np.sqrt(np.diag(pcov_lin_phi))
 chisq_lin_phi = np.sum((residu_lin_phi/z_err_phi)**2)
-df = N - 2
+df = N - 1
 
 # frequenza di taglio
 ft_lin_A = np.sqrt(1/popt_lin_A[0])
@@ -500,11 +500,11 @@ ft_stima.append(['$\phi$,lin', ft_lin_phi, err_ft_phi])
 
 print("\n ============== BEST FIT linearizzato - SciPy ====================")
 print("\n ================== Modulo ========================")
-print(r' chisq/ndf = {e:.2f}'.format(e=chisq_nl_A/df))
+print(r' chisq/ndf = {e:.2f}'.format(e=chisq_lin_A/df))
 print( r' slope m = {a:.3e} +/- {b:.1e}'.format(a=popt_lin_A[0], b=perr_lin_A[0]))
 print(r' frequenza di taglio = {e:.0f} +/- {d:.0f} Hz'.format(e=ft_lin_A, d=err_ft_A))
 print("\n ================== fase ========================")
-print(r' chisq/ndf = {e:.2f}'.format(e=chisq_nl_phi/df))
+print(r' chisq/ndf = {e:.2f}'.format(e=chisq_lin_phi/df))
 print( r' slope m = {a:.3e} +/- {b:.1e}'.format(a=popt_lin_phi[0], b=perr_lin_phi[0]))
 print(r' frequenza di taglio = {e:.0f} +/- {d:.0f} Hz'.format(e=ft_lin_phi, d=err_ft_phi))
 print("=============================================================\n")
