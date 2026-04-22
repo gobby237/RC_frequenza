@@ -90,6 +90,7 @@ N = len(f)
 Vin_errL = 1/10*0.41
 V_errL = V_fs/10*0.41
 phi_errL = phi_fs/10*0.41*np.sqrt(2)
+phi_errL[(f>10600)]= phi_fs[(f>10600)]/10*0.58*np.sqrt(2)
 A_err = A*np.sqrt((V_errL/Vout)**2+(Vin_errL/Vin)**2 + 2*(0.03*0.41)**2)
 A_err[(f>10) & (f<10600)] = A[(f>10) & (f<10600)]*np.sqrt((V_errL[(f>10) & (f<10600)]/Vout[(f>10) & (f<10600)])**2+(Vin_errL/Vin[(f>10) & (f<10600)])**2)
 #A_err = []
@@ -107,7 +108,8 @@ print(Vin_errL,V_errL, A_err)
 # Fit lineare locale
 #---------------------------
 
-scan = 1650. # +/- intervallo linearita' di rispetto ft_init
+scan = 2200
+#scan = 1650. # +/- intervallo linearita' di rispetto ft_init
 f_min = ft_init-scan
 f_max = ft_init+scan
 print(f_min,f_max)
