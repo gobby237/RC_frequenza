@@ -18,13 +18,13 @@ params = {'legend.fontsize': '10',
           'legend.facecolor':     'w', # inherit from axes.facecolor; or color spec
           'legend.edgecolor':     'w',      # background patch boundary color
           'figure.figsize': (6, 4),
-         'axes.labelsize': '10',
-         'figure.titlesize' : '14',
-         'axes.titlesize':'12',
-         'xtick.labelsize':'10',
-         'ytick.labelsize':'10',
+         'axes.labelsize': '13',
+         'figure.titlesize' : '17',
+         'axes.titlesize':'15',
+         'xtick.labelsize':'13',
+         'ytick.labelsize':'13',
          'lines.linewidth': '1',
-         'text.usetex': False,
+         'text.usetex': True,
 #         'axes.formatter.limits': '-5, -3',
          'axes.formatter.min_exponent': '2',
 #         'axes.prop_cycle': cycler('color', 'bgrcmyk')
@@ -108,8 +108,8 @@ print(Vin_errL,V_errL, A_err)
 # Fit lineare locale
 #---------------------------
 
-scan = 2200
-#scan = 1650. # +/- intervallo linearita' di rispetto ft_init
+
+scan = 1650. # +/- intervallo linearita' di rispetto ft_init
 f_min = ft_init-scan
 f_max = ft_init+scan
 print(f_min,f_max)
@@ -227,7 +227,7 @@ plt.show()
 
 ft = ft_phi
 
-scan = 14000. # +/- intervallo linearita' di rispetto ft_init
+scan = 10000. # +/- intervallo linearita' di rispetto ft_init
 f_min = (ft+scan)
 f_max = (ft+55*scan)
 print(ft,f_min,f_max)
@@ -282,7 +282,7 @@ print(r' chisq/ndf = {e:.2f}'.format(e=chisq_logA/df))
 print(r' frequenza di taglio BODE1= {e:.3f} +/- {d:.0f} Hz'.format(e=ft_bode1, d=err_ft_bode1))
 print("\n ================== BODE 2 ========================")
 print( r' intercept q = {c:.3f} +/- {d:.3f} '.format(c=popt_logA2[0],d=perr_logA2[0]))
-print(r' chisq/ndf = {e:.2f}'.format(e=chisq_logA2/df))
+print(r' chisq/ndf = {e:.2f}'.format(e=chisq_logA2/(df+1)))
 print(r' frequenza di taglio BODE2= {e:.3f} +/- {d:.0f} Hz'.format(e=ft_bode2, d=err_ft_bode2))
 print("=============================================================\n")
 
@@ -294,19 +294,16 @@ x_fit = np.linspace(np.log10(f_min/ft), np.log10(f_max/ft), 1000)
 """
 
 fig, ax = plt.subplots(2, 1, figsize=(5, 4),sharex=True, constrained_layout = True, height_ratios=[2, 1])
-ax[0].plot(x_fit, fit_lin(x_fit, *popt_logA), label='BODE 1', linestyle='--', color='green')
+ax[0].plot(x_fit, fit_lin(x_fit, *popt_logA), label='BODE 1', linestyle='--', color='red')
 ax[0].plot(x_fit, custom_fit_lin(x_fit, *popt_logA2), label='BODE 2', linestyle='--', color='blue')
 ax[0].errorbar(np.log10(f/ft), 20*np.log10(A),yerr=20*1/A*A_err, fmt='o',ms=1,color='black') # , label=r'data'
 #ax[0].set_xlim(np.log(f_min-scan/2/ft),np.log(f_max+scan/2/ft))
 #ax[0].set_ylim(0,1)
 ax[0].legend(loc='upper right')
-ax[0].set_ylabel(r'$\left|A\right|~(dB)$')
+ax[0].set_ylabel(r'$\left|A\right|~[dB]$')
 #ax[0].set_xticks([2,3,4,5])
 #ax[0].text(1.0,-10,r'm = {a:.3e} $\pm$ {b:.1e}'.format(a=popt_logA[0], b=perr_logA[0]), size=8, color='green')
 #ax[0].text(1.0,-15,r'q = {c:.3f} $\pm$ {d:.3f}'.format(c=popt_logA[1],d=perr_logA[1]), size=8, color='green')
-
-ax[0].text(-1,-30,r'$f_t$ = {e:.0f} +/- {d:.0f} Hz'.format(e=ft_bode1, d=err_ft_bode1), size=10, color='green')
-ax[0].text(-1,-35,r'$f_t$ = {e:.0f} +/- {d:.0f} Hz'.format(e=ft_bode2, d=err_ft_bode2), size=10, color='blue')
 
 ax[1].errorbar(x,residulogA,yerr=y_err_logA, fmt='o',ms=2,color='black')
 ax[1].plot(x_fit, custom_fit_lin(x_fit, *popt_logA2)-fit_lin(x_fit, *popt_logA), linestyle='--', color='blue')
@@ -314,7 +311,10 @@ R_ylim = np.std(residulogA)*5 + np.max(y_err_logA)
 ax[1].set_ylim([-1*R_ylim,R_ylim])
 ax[1].set_ylabel(r'Residui')
 ax[1].set_xlabel(r'$\log{\frac{f}{f_t}}$')
-ax[1].plot(x,np.zeros(N), color='green',linestyle='--')
+ax[1].plot(x,np.zeros(N), color='red',linestyle='--')
+
+# Imposta il range desiderato per l'asse x
+ax[0].set_xlim(-1, 2.5)   # esempio: da -2 a 4 (valori in scala log10(f/ft))
 
 plt.savefig(file+'_BODE.png',
             bbox_inches ="tight",
@@ -440,33 +440,34 @@ plt.show()
 #---------------------------
 # Fit linearizzato
 #---------------------------
-
 ft = ft_phi
 
 
 # tolgo dati ad alta frequenza, perche' con maggiore errore.
 # definisco la scolita
 
-soglia = 4.5e3
-soglia2 = 4.5e3
+soglia1 = 50
+soglia = 4.3e3
+soglia2 = 0
+soglia2_2 = 28e3
 
 
-x2 = f[(f<soglia)]**2
-x = f[(f<soglia2)]
-y = 1/A[(f<soglia)]**2
-z = np.tan(phi[(f<soglia2)]*np.pi/2)
+x_a = f[(f<soglia)&(f>soglia1)]**2
+x_f = f[(f>soglia2) & (f<soglia2_2)]
+y = 1/A[(f<soglia)&(f>soglia1)]**2
+z = np.tan(phi[(f<soglia2_2) & (f>soglia2)]*np.pi/2)
 
-y_err_A2 = 2*y/A[(f<soglia)]*A_err[(f<soglia)]
-z_err_phi = (1+z**2)*phi_errL[(f<soglia2)]
+y_err_A2 = 2*y/A[(f<soglia)&(f>soglia1)]*A_err[(f<soglia)&(f>soglia1)]
+z_err_phi = (1+z**2)*phi_errL[(f<soglia2_2) & (f > soglia2)]
 
-N = len(x)
-
+N_a = len(x_a)
+N_f = len(x_f)
 
 custom_fit_lin1 = lambda var_x, m: fit_lin(var_x, m, 1)
 custom_fit_lin2 = lambda var_x, m: fit_lin(var_x, m, 0)
 
-popt_lin_A, pcov_lin_A = curve_fit(custom_fit_lin1, x2, y, p0=[1/ft**2], method='lm', sigma=y_err_A2,absolute_sigma=True)
-popt_lin_phi, pcov_lin_phi = curve_fit(custom_fit_lin2, x, z, p0=[-1/ft], method='lm', sigma=z_err_phi,absolute_sigma=True)
+popt_lin_A, pcov_lin_A = curve_fit(custom_fit_lin1, x_a, y, p0=[1/ft**2], method='lm', sigma=y_err_A2,absolute_sigma=True)
+popt_lin_phi, pcov_lin_phi = curve_fit(custom_fit_lin2, x_f, z, p0=[-1/ft], method='lm', sigma=z_err_phi,absolute_sigma=True)
 
 """
 POPT: Vettore con la stima dei parametri dal fit
@@ -475,15 +476,17 @@ PCOV: Matrice delle covarianze
 
 
 # build residuals data
-residu_lin_A = y - custom_fit_lin1(x2, *popt_lin_A)
-residu_lin_phi =  z - custom_fit_lin2(x, *popt_lin_phi)
+residu_lin_A = y - custom_fit_lin1(x_a, *popt_lin_A)
+residu_lin_phi =  z - custom_fit_lin2(x_f, *popt_lin_phi)
 
 # variables error and chi2
 perr_lin_A = np.sqrt(np.diag(pcov_lin_A))
 chisq_lin_A = np.sum((residu_lin_A/y_err_A2)**2)
 perr_lin_phi = np.sqrt(np.diag(pcov_lin_phi))
 chisq_lin_phi = np.sum((residu_lin_phi/z_err_phi)**2)
-df = N - 1
+
+df_a = N_a - 1
+df_f = N_f - 1 
 
 # frequenza di taglio
 ft_lin_A = np.sqrt(1/popt_lin_A[0])
@@ -502,48 +505,56 @@ ft_stima.append(['$\phi$,lin', ft_lin_phi, err_ft_phi])
 
 print("\n ============== BEST FIT linearizzato - SciPy ====================")
 print("\n ================== Modulo ========================")
-print(r' chisq/ndf = {e:.2f}'.format(e=chisq_lin_A/df))
+print(r' chisq/ndf = {e:.2f}'.format(e=chisq_lin_A/df_a))
 print( r' slope m = {a:.3e} +/- {b:.1e}'.format(a=popt_lin_A[0], b=perr_lin_A[0]))
 print(r' frequenza di taglio = {e:.0f} +/- {d:.0f} Hz'.format(e=ft_lin_A, d=err_ft_A))
 print("\n ================== fase ========================")
-print(r' chisq/ndf = {e:.2f}'.format(e=chisq_lin_phi/df))
+print(r' chisq/ndf = {e:.2f}'.format(e=chisq_lin_phi/df_f))
 print( r' slope m = {a:.3e} +/- {b:.1e}'.format(a=popt_lin_phi[0], b=perr_lin_phi[0]))
 print(r' frequenza di taglio = {e:.0f} +/- {d:.0f} Hz'.format(e=ft_lin_phi, d=err_ft_phi))
 print("=============================================================\n")
 
 # fit tracciato con mille punti fra la freq min e max
-x_fit = np.linspace(np.min(x), np.max(x), 1000)
-x_fit2 = np.linspace(np.min(x2), np.max(x2), 1000)
+x_fit = np.linspace(np.min(x_f), np.max(x_f), 1000)
+x_fit2 = np.linspace(np.min(x_a), np.max(x_a), 1000)
 
 """
 # Plot data, fit and residuals
 """
 
 fig, ax = plt.subplots(2, 2, figsize=(7, 4),sharex='col', constrained_layout = True, height_ratios=[2, 1])
-ax[0,0].plot(x_fit2, custom_fit_lin1(x_fit2, *popt_lin_A), label='modulo', linestyle='--', color='blue')
-ax[0,1].plot(x_fit,custom_fit_lin2(x_fit,*popt_lin_phi), label='fase', linestyle='--', color='green')
-ax[0,0].errorbar(x2,y,yerr=y_err_A2, fmt='o',ms=2,color='blue') # , label=r'data'
-ax[0,1].errorbar(x,z,yerr=z_err_phi, fmt='o',ms=2,color='green') #, label=r'data'
-ax[0,0].set_xlim(5e3,1e8)
+ax[0,0].plot(x_fit2, custom_fit_lin1(x_fit2, *popt_lin_A), label='modulo', linestyle='--', color='black')
+ax[0,1].plot(x_fit,custom_fit_lin2(x_fit,*popt_lin_phi), label='fase', linestyle='--', color='red')
+ax[0,0].errorbar(x_a,y,yerr=y_err_A2, fmt='o',ms=2,color='black') # , label=r'data'
+ax[0,1].errorbar(x_f,z,yerr=z_err_phi, fmt='o',ms=2,color='red') #, label=r'data'
+ax[0,0].set_xlim(1e3,1e8)
 #ax[0,0].set_ylim(0,1)
 ax[0,0].set_yscale('log')
 ax[0,0].set_xscale('log')
-ax[0,0].legend(loc='upper right')
-ax[0,0].set_ylabel(r'$\left|A\right|$ / $\phi_{norm \to 1}$')
-#ax[0].set_xticks([2,3,4,5])
+ax[0,0].legend(['Fit modulo'], loc='upper left')
+ax[0,1].legend(['Fit fase'], loc='upper left')
+ax[0,0].set_ylabel(r'$A^{-2}$', color='black')
+ax[0,1].set_ylabel(r'$\tan\left(\phi\right)$', color='red')#ax[0].set_xticks([2,3,4,5])
 
-ax[0,1].text(500,20,r'$f_t$ = {e:.0f} +/- {d:.0f} Hz'.format(e=ft_lin_phi, d=err_ft_phi), size=10, color='green')
-ax[0,0].text(30000,5,r'$f_t$ = {e:.0f} +/- {d:.0f} Hz'.format(e=ft_lin_A, d=err_ft_A), size=10, color='blue')
+ax[0,1].text(500,20,r'$f_t$ = {e:.0f} +/- {d:.0f} Hz'.format(e=ft_lin_phi, d=err_ft_phi), size=10, color='red')
+ax[0,1].yaxis.set_label_position("right")
+ax[0,1].yaxis.tick_right()
+ax[0,0].text(30000,5,r'$f_t$ = {e:.0f} +/- {d:.0f} Hz'.format(e=ft_lin_A, d=err_ft_A), size=10, color='black')
+ax[1,1].yaxis.tick_right()
 
-ax[1,0].errorbar(x2,residu_lin_A,yerr=y_err_A2, fmt='o', label=r'modulo',ms=2,color='blue')
-ax[1,1].errorbar(x,residu_lin_phi,yerr=z_err_phi, fmt='o', label=r'fase ',ms=2,color='green')
+ax[1,0].errorbar(x_a,residu_lin_A,yerr=y_err_A2, fmt='o', label=r'modulo',ms=2,color='black')
+ax[1,1].errorbar(x_f,residu_lin_phi,yerr=z_err_phi, fmt='o', label=r'fase ',ms=2,color='red')
 R_ylim = np.std(residuA)*5 + np.max(y_err_A2)
 ax[1,0].set_ylim([-1*R_ylim,R_ylim])
 ax[1,0].set_xscale('log')
 ax[1,0].set_ylabel(r'Residui')
-ax[1,0].set_xlabel(r'Frequenza (Hz)',loc='center')
-ax[1,0].plot(x,np.zeros(N),color='black')
-ax[1,1].plot(x,np.zeros(N),color='black')
+ax[1,0].plot([np.min(x_a), np.max(x_a)], [0, 0],
+             color='black', linestyle='--')
+ax[1,1].plot([np.min(x_f), np.max(x_f)], [0, 0],
+             color='red', linestyle='--')
+
+ax[1,0].set_xlabel(r'$f^2$ [Hz$^2$]')
+ax[1,1].set_xlabel(r'$f$ [Hz]')
 
 plt.savefig(file+'_lin.png',
             bbox_inches ="tight",
@@ -624,4 +635,3 @@ plt.savefig(file+'_res.png',
             dpi = 'figure')
 
 plt.show()
-
